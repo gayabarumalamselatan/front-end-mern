@@ -24,13 +24,14 @@ export async function middleware(request: NextRequest) {
       url.searchParams.set("callbackUrl", encodeURI(request.url))
       return NextResponse.redirect(url);
     }
-  }
-  if(pathname === "/admin") {
-    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
-  }
 
-  if(token?.user?.role !== "admin"){
-    return NextResponse.redirect(new URL("/", request.url))
+    if(token?.user?.role !== "admin"){
+      return NextResponse.redirect(new URL("/", request.url))
+    }
+
+    if(pathname === "/admin") {
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+    }
   }
 
   if(pathname.startsWith("/member")) {
@@ -39,12 +40,12 @@ export async function middleware(request: NextRequest) {
       url.searchParams.set("callbackUrl", encodeURI(request.url))
       return NextResponse.redirect(url);
     }
-  }
 
-  if(pathname === "/member") {
-    return NextResponse.redirect(new URL("/member/dashboard", request.url));
+    if(pathname === "/member") {
+      return NextResponse.redirect(new URL("/member/dashboard", request.url));
+    }
+  
   }
-
 }
 
 export const config = {
