@@ -1,11 +1,11 @@
 import DataTable from "@/components/ui/DataTable"
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, useDisclosure } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import { Key, ReactNode, useCallback, useEffect } from "react"
 import { CiMenuKebab } from "react-icons/ci";
 import { COLUMN_LIST_CATEGORY } from "./Category.constant";
 import useCategory from "./useCategory";
-import InputFile from "@/components/ui/inputFile";
+import AddCategoryModal from "./AddCategoryModal";
 
 const Category = () => {
   const {push, isReady, query} = useRouter();
@@ -21,7 +21,10 @@ const Category = () => {
     handleChangePage,
     handleSearch,
     handleClearSearch,
+    refetchCategory,
   } = useCategory();
+
+  const addCategoryModal = useDisclosure();
 
   useEffect(() => {
     if(isReady){
@@ -67,7 +70,7 @@ const Category = () => {
           onChangeSearch={handleSearch}
           onClearSearch={handleClearSearch}
           buttonTopContentLabel="Create Category"
-          onClickButtonTopContent={() => {}}
+          onClickButtonTopContent={addCategoryModal.onOpen}
           limit={String(currentLimit)}
           onChangeLimit={handleChangeLimit}
           currentPage={Number(currentPage)}
@@ -77,10 +80,9 @@ const Category = () => {
           isLoading={isLoadingCategory || isRefetchingCategory}
         />
       )}
-      <InputFile
-        name="input"
-        isDropable
-      />
+
+      <AddCategoryModal {...addCategoryModal} refetchCategory={refetchCategory} />
+
     </section>
   )
 }
