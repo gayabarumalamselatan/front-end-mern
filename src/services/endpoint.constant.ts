@@ -1,5 +1,6 @@
 const endpoint = {
-  AUTH: '/auth'
+  AUTH: '/auth',
+  CATEGORY: '/category'
 }
 
 export default endpoint;
