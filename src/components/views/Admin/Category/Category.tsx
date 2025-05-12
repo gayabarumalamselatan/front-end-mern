@@ -6,6 +6,8 @@ import { CiMenuKebab } from "react-icons/ci";
 import { COLUMN_LIST_CATEGORY } from "./Category.constant";
 import useCategory from "./useCategory";
 import AddCategoryModal from "./AddCategoryModal";
+import DeleteCategoryModal from "./DeleteCategoryModal";
+import Image from "next/image";
 
 const Category = () => {
   const {push, isReady, query} = useRouter();
@@ -22,9 +24,12 @@ const Category = () => {
     handleSearch,
     handleClearSearch,
     refetchCategory,
+    selectedId, 
+    setSelectedId
   } = useCategory();
 
   const addCategoryModal = useDisclosure();
+  const deleteCategoryModal = useDisclosure();
 
   useEffect(() => {
     if(isReady){
@@ -37,10 +42,10 @@ const Category = () => {
       const cellValue = category[columnKey as keyof typeof category];
       
       switch(columnKey) {
-        // case "icon":
-        //   return (
-        //     <Image src={`${cellValue}`} alt="icon" width={100} height={200}/>
-        //   );
+        case "icon":
+          return (
+            <Image src={`${cellValue}`} alt="icon" width={100} height={200}/>
+          );
         case "actions":
           return (
             <Dropdown>
@@ -51,7 +56,16 @@ const Category = () => {
               </DropdownTrigger>
               <DropdownMenu>
                 <DropdownItem key="detail-category-button" onPress={() => push(`/admin/category/${category._id}`)}>Detail Category</DropdownItem>
-                <DropdownItem key="delete-category-button" className="text-danger-500">Delete Category</DropdownItem>
+                <DropdownItem 
+                  key="delete-category-button" 
+                  className="text-danger-500"
+                  onPress={() => {
+                    setSelectedId(`${category._id}`);
+                    deleteCategoryModal.onOpen();
+                  }}
+                >
+                  Delete Category
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           );
@@ -82,6 +96,13 @@ const Category = () => {
       )}
 
       <AddCategoryModal {...addCategoryModal} refetchCategory={refetchCategory} />
+ 
+      <DeleteCategoryModal 
+        {...deleteCategoryModal} 
+        refetchCategory={refetchCategory} 
+        selectedId = {selectedId}
+        setSelectedId = {setSelectedId}
+      />
 
     </section>
   )

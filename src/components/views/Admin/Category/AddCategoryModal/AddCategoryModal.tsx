@@ -47,7 +47,7 @@ const AddCategoryModal = (props: PropTypes) => {
       onClose={() => handleOnClose(onClose)}
     >
       <form onSubmit={handleSubmitform(handleAddCategory)}>
-        <ModalContent className="m-">
+        <ModalContent className="m-4">
           <ModalHeader>
             Add Category
           </ModalHeader>
