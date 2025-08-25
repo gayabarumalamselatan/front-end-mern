@@ -1,42 +1,40 @@
 import { LIMIT_LISTS } from "@/constants/list.constants";
+import useChangeUrl from "@/hooks/useChangeUrl";
 import { cn } from "@/utils/cn";
 import { Button, Input, Pagination, Select, SelectItem, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react"
-import { base, div } from "framer-motion/client";
 import { ChangeEvent, Key, ReactNode, useMemo } from "react";
 import { CiSearch } from "react-icons/ci";
 
 interface PropTypes {
   buttonTopContentLabel?: string;
   columns: Record<string, unknown>[];
-  currentPage: number;
   emptyContent: string;
-  limit: string;
   isLoading?: boolean;
   data: Record<string, unknown>[];
-  onChangeLimit: (e: ChangeEvent<HTMLSelectElement>) => void;
-  onChangePage: (page: number) => void;
   totalPages: number;
-  onClearSearch: () => void;
   onClickButtonTopContent?: () => void;
-  onChangeSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   renderCell: (item: Record<string, unknown>, columnKey: Key) => ReactNode;
 }
 
 const DataTable = (props: PropTypes) => {
+
+  const { 
+    handleChangeLimit,
+    handleChangePage,
+    handleSearch,
+    handleClearSearch,
+    currentLimit,
+    currentPage
+  } = useChangeUrl();
+
   const { 
     buttonTopContentLabel, 
     columns, 
     data, 
     emptyContent,
-    onClearSearch, 
     onClickButtonTopContent, 
     isLoading,
-    onChangeSearch,
-    limit, 
-    onChangeLimit,
     totalPages, 
-    onChangePage,
-    currentPage,
     renderCell
   } = props;
 
@@ -48,8 +46,8 @@ const DataTable = (props: PropTypes) => {
           className="w-full sm:max-w-[24%]" 
           placeholder="Search by name" 
           startContent={<CiSearch/>} 
-          onClear={onClearSearch}
-          onChange={onChangeSearch}
+          onClear={handleClearSearch}
+          onChange={handleSearch}
         />
         {buttonTopContentLabel && 
           <Button 
@@ -61,7 +59,7 @@ const DataTable = (props: PropTypes) => {
         }
       </div>
     )
-  }, [buttonTopContentLabel, onChangeSearch, onClearSearch, onClickButtonTopContent]);
+  }, [buttonTopContentLabel, handleSearch, handleClearSearch, onClickButtonTopContent]);
 
   const BottomContent = useMemo(() => {
     return (
@@ -69,9 +67,9 @@ const DataTable = (props: PropTypes) => {
         <Select 
           className="hidden max-w-36 lg:block" 
           size="md" 
-          selectedKeys={[limit]}
+          selectedKeys={[`${currentLimit}`]}
           selectionMode="single"
-          onChange={onChangeLimit}
+          onChange={handleChangeLimit}
           startContent={<p className="text-cmall">Show:</p>}
           disallowEmptySelection
         >
@@ -86,15 +84,15 @@ const DataTable = (props: PropTypes) => {
             isCompact
             showControls
             color="danger"
-            page={currentPage}
+            page={Number(currentPage)}
             total={totalPages}
-            onChange={onChangePage}
+            onChange={handleChangePage}
             loop
           />
         }
       </div>
     )
-  },[limit, currentPage, totalPages, onChangeLimit, onChangePage])
+  },[currentLimit, currentPage, totalPages, handleChangeLimit, handleChangePage])
 
   return (
     <Table 
