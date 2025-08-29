@@ -1,31 +1,44 @@
+import { DELAY } from '@/constants/list.constants';
 import { ToasterContext } from '@/contexts/ToasterContext';
+import useDebounce from '@/hooks/useDebounce';
 import useMediaHandling from '@/hooks/useMediaHandling';
 import categoryServices from '@/services/category.service';
+import eventServices from '@/services/event.service';
 import { ICategory } from '@/types/Category';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation } from '@tanstack/react-query';
-import { useContext } from 'react';
+import { DateValue } from '@nextui-org/react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
+import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
 
 const schema = yup.object().shape({
   name: yup.string().required("Please input name."),
-  description: yup.string().required("Please input description."),
-  icon: yup.mixed<FileList | string>().required("Please input icon"),
+  slug: yup.string().required("Please input slug."),
+  category: yup.string().required("Please select category"),
+  startDate: yup.mixed<DateValue>().required("Please select start date"),
+  endDate: yup.mixed<DateValue>().required("Please select end date"),
+  isPublished: yup.string().required("Please select status"),
+  isFeatured: yup.string().required("Please select featured"),
+  description: yup.string().required("Please input description"),
+  isOnline: yup.string().required("Please select online or offline"),
+  region: yup.string().required("Please select region"),
+  banner: yup.mixed<FileList | string>().required("Please input banner"),
+  longitude: yup.string().required("Please input longitude coordinate"),
+  latitude: yup.string().required("Please input latitude coordinate"),
 });
 
-const useAddCategoryModal = () => {
+const useAddEventModal = () => {
   const { setToaster } = useContext(ToasterContext);
+  const debounce = useDebounce();
 
   const {
-    mutateUploadFile,
     isPendingMutateUploadFile,
-    mutateDeleteFile,
     isPendingMutateDeleteFile,
-
-    handleDeleteFile,
     handleUploadFile,
+    handleDeleteFile
   } = useMediaHandling();
 
   const {
@@ -40,33 +53,55 @@ const useAddCategoryModal = () => {
     resolver: yupResolver(schema),
   });
 
-  const preview = watch("icon");
-  const fileUrl = getValues("icon");
+  const preview = watch("banner");
+  const fileUrl = getValues("banner");
 
-  const handleUploadIcon = (
+  const handleUploadBanner = (
     files: FileList, 
     onChange: (files: FileList | undefined) => void,
   ) => {
     handleUploadFile(files, onChange, (fileUrl: string | undefined) => {
       if(fileUrl){
-        setValue("icon", fileUrl);
+        setValue("banner", fileUrl);
       }
     })
   }
 
-  const handleDeleteIcon = (
+  const handleDeleteBanner = (
     onChange: (files: FileList | undefined) => void
   ) => {  
     handleDeleteFile(fileUrl, () => onChange(undefined));
   }
 
   const handleOnClose = (onClose: () => void) => {
-
     handleDeleteFile(fileUrl, () => {
       reset();
       onClose();
     });
   }
+
+  const {
+    data: dataCategory, 
+  } = useQuery({
+    queryKey: ["Categories"],
+    queryFn: () => categoryServices.getCategoriers(),
+    enabled: true,
+  })
+
+  const [searchRegency, setSearchRegency] = useState("");
+
+  const { 
+    data: dataRegion
+  } = useQuery({
+    queryKey: ["region", searchRegency],
+    queryFn: () => eventServices.searchLocationByRegency(`${searchRegency}`),
+    enabled: searchRegency !== "",
+  });
+
+  const handleSearchRegion = (region: string) => {
+    debounce(() => setSearchRegency(region), DELAY);
+  }
+
 
   const addCategory = async (payload: ICategory) => {
     const res = await categoryServices.addCategory(payload);
@@ -104,13 +139,17 @@ const useAddCategoryModal = () => {
     handleAddCategory,
     isPendingMutateAddCategory,
     isSuccessMutateAddCategory,
-    handleUploadIcon,
+    handleUploadBanner,
     isPendingMutateUploadFile,
     preview,
-    handleDeleteIcon,
+    handleDeleteBanner,
     isPendingMutateDeleteFile,
-    handleOnClose
+    handleOnClose,
+    dataCategory,
+    handleSearchRegion,
+    dataRegion,
+    searchRegency
   }
 }
 
-export default useAddCategoryModal
+export default useAddEventModal

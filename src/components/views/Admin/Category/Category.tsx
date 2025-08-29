@@ -1,8 +1,7 @@
 import DataTable from "@/components/ui/DataTable"
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, useDisclosure } from "@nextui-org/react";
+import { useDisclosure } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import { Key, ReactNode, useCallback, useEffect } from "react"
-import { CiMenuKebab } from "react-icons/ci";
 import { COLUMN_LIST_CATEGORY } from "./Category.constant";
 import useCategory from "./useCategory";
 import AddCategoryModal from "./AddCategoryModal";
