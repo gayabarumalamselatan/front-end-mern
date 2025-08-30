@@ -3,9 +3,8 @@ import useAddEventModal from "./useAddEventModal";
 import { Controller } from "react-hook-form";
 import InputFile from "@/components/ui/InputFile";
 import { useEffect } from "react";
-import useMediaHandling from "@/hooks/useMediaHandling";
 import { ICategory } from "@/types/Category";
-import { IEvent, IRegency } from "@/types/Event";
+import { IRegency } from "@/types/Event";
 import { getLocalTimeZone, now } from "@internationalized/date";
 
 interface PropTypes {
