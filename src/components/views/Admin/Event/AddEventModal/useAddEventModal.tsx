@@ -5,7 +5,10 @@ import useMediaHandling from '@/hooks/useMediaHandling';
 import categoryServices from '@/services/category.service';
 import eventServices from '@/services/event.service';
 import { ICategory } from '@/types/Category';
+import { IEvent, IEventForm } from '@/types/Event';
+import { toDateStandart } from '@/utils/date';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { getLocalTimeZone, now } from '@internationalized/date';
 import { DateValue } from '@nextui-org/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
@@ -21,7 +24,7 @@ const schema = yup.object().shape({
   startDate: yup.mixed<DateValue>().required("Please select start date"),
   endDate: yup.mixed<DateValue>().required("Please select end date"),
   isPublished: yup.string().required("Please select status"),
-  isFeatured: yup.string().required("Please select featured"),
+  isFeature: yup.string().required("Please select featured"),
   description: yup.string().required("Please input description"),
   isOnline: yup.string().required("Please select online or offline"),
   region: yup.string().required("Please select region"),
@@ -55,6 +58,8 @@ const useAddEventModal = () => {
 
   const preview = watch("banner");
   const fileUrl = getValues("banner");
+  setValue('startDate', now(getLocalTimeZone()));
+  setValue('endDate', now(getLocalTimeZone()));
 
   const handleUploadBanner = (
     files: FileList, 
@@ -103,17 +108,17 @@ const useAddEventModal = () => {
   }
 
 
-  const addCategory = async (payload: ICategory) => {
-    const res = await categoryServices.addCategory(payload);
+  const addEvent = async (payload: IEvent) => {
+    const res = await eventServices.addEvent(payload);
     return res;
   };
 
   const {
-    mutate: mutateAddCategory, 
-    isPending: isPendingMutateAddCategory, 
-    isSuccess: isSuccessMutateAddCategory
+    mutate: mutateAddEvent, 
+    isPending: isPendingMutateAddEvent, 
+    isSuccess: isSuccessMutateAddEvent
   } = useMutation({
-    mutationFn: addCategory,
+    mutationFn: addEvent,
     onError:(error) => {
       setToaster({
         type: "error",
@@ -123,22 +128,37 @@ const useAddEventModal = () => {
     onSuccess: () => {
       setToaster({
         type: "success",
-        message: "Success add new category"
+        message: "Success add new event"
       })
       reset()
     },
   })
 
-  const handleAddCategory = (data: ICategory) => mutateAddCategory(data);
+  const handleAddEvent = (data: IEventForm) => {
+    const payload = {
+      ...data, 
+      isFeature: Boolean(data.isFeature),
+      isPublished: Boolean(data.isPublished),
+      isOnline: Boolean(data.isOnline),
+      startDate: toDateStandart(data.startDate),
+      endDate: toDateStandart(data.endDate),
+      location: {
+        region: data.region,
+        coordinates: [Number(data.latitude), Number(data.longitude)],
+      },
+      banner: data.banner,
+    };
+    mutateAddEvent(payload);
+  };
 
   return{
     control,
     errors,
     reset,
     handleSubmitform,
-    handleAddCategory,
-    isPendingMutateAddCategory,
-    isSuccessMutateAddCategory,
+    handleAddEvent,
+    isPendingMutateAddEvent,
+    isSuccessMutateAddEvent,
     handleUploadBanner,
     isPendingMutateUploadFile,
     preview,

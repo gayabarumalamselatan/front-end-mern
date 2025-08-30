@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import useMediaHandling from "@/hooks/useMediaHandling";
 import { ICategory } from "@/types/Category";
 import { IEvent, IRegency } from "@/types/Event";
+import { getLocalTimeZone, now } from "@internationalized/date";
 
 interface PropTypes {
   isOpen: boolean;
@@ -21,9 +22,9 @@ const AddEventModal = (props: PropTypes) => {
     errors,
     handleOnClose,
     handleSubmitform,
-    handleAddCategory,
-    isPendingMutateAddCategory,
-    isSuccessMutateAddCategory,
+    handleAddEvent,
+    isPendingMutateAddEvent,
+    isSuccessMutateAddEvent,
     handleUploadBanner,
     isPendingMutateUploadFile,
     preview,
@@ -36,13 +37,13 @@ const AddEventModal = (props: PropTypes) => {
   } = useAddEventModal();
 
   useEffect(() => {
-    if(isSuccessMutateAddCategory){
+    if(isSuccessMutateAddEvent){
       onClose();
       refetchEvents();
     }
-  },[isSuccessMutateAddCategory]);
+  },[isSuccessMutateAddEvent]);
 
-  const disabledSubmit = isPendingMutateAddCategory || isPendingMutateUploadFile || isPendingMutateDeleteFile;
+  const disabledSubmit = isPendingMutateAddEvent || isPendingMutateUploadFile || isPendingMutateDeleteFile;
 
   return (
     <Modal 
@@ -52,7 +53,7 @@ const AddEventModal = (props: PropTypes) => {
       scrollBehavior="inside"
       onClose={() => handleOnClose(onClose)}
     >
-      <form onSubmit={handleSubmitform(handleAddCategory)}>
+      <form onSubmit={handleSubmitform(handleAddEvent)}>
         <ModalContent className="m-4">
           <ModalHeader>
             Add Event
@@ -120,6 +121,7 @@ const AddEventModal = (props: PropTypes) => {
                       {...field}
                       label="Start Date" 
                       variant="bordered" 
+                      defaultValue={now(getLocalTimeZone())}
                       hideTimeZone
                       showMonthAndYearPickers
                       isInvalid={errors.startDate !== undefined}
@@ -135,6 +137,7 @@ const AddEventModal = (props: PropTypes) => {
                       {...field}
                       label="End Date" 
                       variant="bordered" 
+                      defaultValue={now(getLocalTimeZone())}
                       hideTimeZone
                       showMonthAndYearPickers
                       isInvalid={errors.endDate !== undefined}
@@ -160,19 +163,36 @@ const AddEventModal = (props: PropTypes) => {
                   )}
                 />
                 <Controller 
-                  name="isFeatured"
+                  name="isFeature"
                   control={control}
                   render={({field}) => (
                     <Select
                       {...field}
                       label="Featured" 
                       variant="bordered" 
-                      isInvalid={errors.isFeatured !== undefined}
-                      errorMessage={errors.isFeatured?.message}
+                      isInvalid={errors.isFeature !== undefined}
+                      errorMessage={errors.isFeature?.message}
                       disallowEmptySelection
                     >
                       <SelectItem key="true" value="true">Yes</SelectItem>
                       <SelectItem key="false" value="false">No</SelectItem>
+                    </Select>
+                  )}
+                />
+                <Controller 
+                  name="isOnline"
+                  control={control}
+                  render={({field}) => (
+                    <Select
+                      {...field}
+                      label="Online / Offline" 
+                      variant="bordered" 
+                      isInvalid={errors.isOnline !== undefined}
+                      errorMessage={errors.isOnline?.message}
+                      disallowEmptySelection
+                    >
+                      <SelectItem key="true" value="true">Online</SelectItem>
+                      <SelectItem key="false" value="false">Offline</SelectItem>
                     </Select>
                   )}
                 />
@@ -283,7 +303,7 @@ const AddEventModal = (props: PropTypes) => {
               type="submit"
               disabled={disabledSubmit}
             >
-              {isPendingMutateAddCategory ? (
+              {isPendingMutateAddEvent ? (
                 <Spinner size="sm" color="white"/>
               ) : (
                 "Create Event"

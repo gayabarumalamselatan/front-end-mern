@@ -78,7 +78,7 @@ const Event = () => {
         />
       )}
 
-      <AddEventModal {...addEventModal} refetchCategory={refetchEvents} />
+      <AddEventModal {...addEventModal} refetchEvents={refetchEvents} />
  
       {/* <deleteEventModal
         {...deleteEventModal} 

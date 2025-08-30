@@ -19,9 +19,7 @@ const useAddCategoryModal = () => {
   const { setToaster } = useContext(ToasterContext);
 
   const {
-    mutateUploadFile,
     isPendingMutateUploadFile,
-    mutateDeleteFile,
     isPendingMutateDeleteFile,
 
     handleDeleteFile,
